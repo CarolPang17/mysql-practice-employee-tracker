@@ -12,11 +12,17 @@ const consoleTable = require('console.table')
 const db = mysql.createConnection(
   {
     host: 'localhost',
-    // Your MySQL username,
+    // my MySQL username,
     user: 'root',
-    // Your MySQL password
+    // my MySQL password
     password: '',
     database: 'employees_db'
   },
-  console.log('Connected to the election database.')
+  console.log('Connected to the employees_db database.')
 );
+
+// connects to sql server and sql database
+connection.connect(function(err){
+  if (err) throw err;
+  options();
+})
