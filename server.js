@@ -53,6 +53,9 @@ function options() {
         case "View all departments":
           viewDepartments();
           break;
+        case "View all roles":
+          viewRoles();
+          break;
       }
     });
 }
@@ -82,3 +85,13 @@ function viewDepartments() {
     options();
   });
 }
+
+// print out the roles table funtion
+function viewRoles() {
+  var query = 'SELECT * FROM roles';
+  db.query(query, function(err, res){
+      if (err) throw err;
+      console.table(`the database now has ${res.length} roles ! Please kindly see below table`, res);
+      options();
+  })
+};
