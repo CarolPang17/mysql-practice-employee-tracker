@@ -21,8 +21,48 @@ const db = mysql.createConnection(
   console.log('Connected to the employees_db database.')
 );
 
-// connects to sql server and sql database
-connection.connect(function(err){
+// connects to server and sql database
+db.connect(function(err){
   if (err) throw err;
   options();
 })
+
+// prompts user some questions with list of options
+function options() {
+  inquirer
+      .prompt({
+        name: 'action',
+        type: 'list',
+        message: 'Please select a action you want to take from below options',
+        choices: [
+          'View all employees',
+          'View all departments',
+          'View all roles',
+          'Add an employee',
+          'Add a department',
+          'Add a role',
+          'Update employee role',
+          'Delete an employee',
+          'EXIT'
+          ]
+      }).then(function (answer) {
+        switch (answer.action) {
+          case "View all employees":
+            viewEmployees();
+            break;
+        }
+      })
+    };
+
+
+// print out the employee table funtion
+function viewEmployees() {
+  var query = 'SELECT * FROM employee';
+  db.query(query, function(err, res) {
+      if (err) throw err;
+      console.table(`the database now has ${res.length} employees ! Please kindly see below table`,res);
+      options();
+  })
+};
+
+
