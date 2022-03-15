@@ -56,13 +56,26 @@ function options() {
         case "View all roles":
           viewRoles();
           break;
+        case "Add an employee":
+          addEmployee();
+          break;
       }
     });
 }
 
 // print out the employee table funtion
 function viewEmployees() {
-  var query = "SELECT * FROM employee";
+  // var query = "SELECT * FROM employee";
+  var query =
+    `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary , e.manager_id
+  FROM employee e
+  LEFT JOIN roles r
+	ON e.role_id = r.id
+  LEFT JOIN department d
+  ON d.id = r.department_id
+  LEFT JOIN employee m
+	ON m.id = e.manager_id`
+
   db.query(query, function (err, res) {
     if (err) throw err;
     console.table(
@@ -88,10 +101,14 @@ function viewDepartments() {
 
 // print out the roles table funtion
 function viewRoles() {
-  var query = 'SELECT * FROM roles';
-  db.query(query, function(err, res){
-      if (err) throw err;
-      console.table(`the database now has ${res.length} roles ! Please kindly see below table`, res);
-      options();
-  })
-};
+  var query = "SELECT * FROM roles";
+  db.query(query, function (err, res) {
+    if (err) throw err;
+    console.table(
+      `the database now has ${res.length} roles ! Please kindly see below table`,
+      res
+    );
+    options();
+  });
+}
+
