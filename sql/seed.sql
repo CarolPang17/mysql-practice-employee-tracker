@@ -18,3 +18,14 @@ VALUES
 ('Sales Manager', 140000, 1),
 ('import Staff', 70000, 4);
 
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES
+('Anita', 'Hamilton', 1, 231),
+('Rosalie', 'Tran', 2, 987),
+('Thelma', 'Ferguson', 3, 567),
+('Cornelius', 'Waters', 4, null),
+('Al', 'Holland', 5, 263),
+('Meredith', 'Ramsey', 6, null),
+('Daryl', 'Boone', 7, 448),
+('Clara', 'Daniel', 2, 987),
+('Kathryn', 'Paul', 3, 567);
