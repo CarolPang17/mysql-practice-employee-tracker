@@ -72,9 +72,7 @@ function viewEmployees() {
   LEFT JOIN roles r
 	ON e.role_id = r.id
   LEFT JOIN department d
-  ON d.id = r.department_id
-  LEFT JOIN employee m
-	ON m.id = e.manager_id`
+  ON d.id = r.department_id`
 
   db.query(query, function (err, res) {
     if (err) throw err;
