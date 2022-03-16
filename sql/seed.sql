@@ -1,6 +1,6 @@
 USE employees_db;
 
---adding data to department table
+-- adding data to department table
 INSERT INTO department (name)
 VALUES
 ("Sales"),
@@ -8,7 +8,7 @@ VALUES
 ('Human Resources'),
 ("Logistics");
 
---adding data to roles table
+-- adding data to roles table
 INSERT INTO roles (title, salary, department_id)
 VALUES
 ('Lead Engineer', 190000, 2),
@@ -19,8 +19,8 @@ VALUES
 ('Sales Manager', 140000, 1),
 ('import Staff', 70000, 4);
 
---adding data to employee table
-INSERT INTO employee (first_name, last_name, role_id, manager)
+-- adding data to employee table
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
 ('Anita', 'Hamilton', 1, 231),
 ('Rosalie', 'Tran', 2, 987),

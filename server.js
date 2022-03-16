@@ -59,12 +59,15 @@ function options() {
         case "Add a department":
           addDepartment();
           break;
-        case "Add an employee":
-          addEmployee();
-          break;
         case "Add a role":
           addRole();
           break;
+        case "Add an employee":
+          addEmployee();
+          break;
+          case "EXIT":
+            db.end();
+            break;
       }
     });
 }
@@ -138,76 +141,132 @@ function addDepartment() {
       // console.log the table
       db.query("SELECT * FROM department", function (err, res) {
         if (err) throw err;
-        console.table("New department is now added! All Departments now:", res);
-        options();
+        viewDepartments();
       });
     });
 }
 
-function getCurrentDepartmentsList(){
+function getCurrentDepartmentsList() {
   var currentDepartmentsList = [];
-  db.query('SELECT * FROM department', function(err, res) {
+  db.query("SELECT * FROM department", function (err, res) {
     if (err) throw err;
     for (let i = 0; i < res.length; i++) {
       currentDepartmentsList.push(res[i].name);
     }
-  })
+  });
   return currentDepartmentsList;
 }
 
 // adding a new roles to the database function
 function addRole() {
-    inquirer
-      .prompt([
-        {
-          name: "newRole",
-          type: "input",
-          message: "please enter the new role that you want to add?",
-        },
-        {
-          name: "salary",
-          type: "input",
-          message: "please enter the amount of salary of this role? ",
-        },
-        {
-          name: "Department",
-          type: "list",
-          // message: "please pick from below departments"
-          choices: getCurrentDepartmentsList(),
-        },
-      ])
-      .then(function (answer) {
-        let addDepartment_id;
+  inquirer
+    .prompt([
+      {
+        name: "newRole",
+        type: "input",
+        message: "please enter the new role that you want to add?",
+      },
+      {
+        name: "salary",
+        type: "input",
+        message: "please enter the amount of salary of this role? ",
+      },
+      {
+        name: "Department",
+        type: "list",
+        choices: getCurrentDepartmentsList(),
+        message: "please pick from below departments"
+      },
+    ])
+    .then(function (answer) {
+      let addDepartment_id;
 
-        db.query('SELECT * FROM department', function(err, res) {
-          if (err) throw err;
-          console.table(`here is the table`,res)
-          console.log(`here is the table.length`,res.length)
-          console.log(`answer.Department : ${answer.Department}`)
+      db.query("SELECT * FROM department", function (err, res) {
+        if (err) throw err;
         // set up the department id for the new role
         for (var i = 0; i < res.length; i++) {
-          console.log(`res[i].name : ${res[i].name} | res[i].id : ${res[i].id}`)
+          console.log(
+            `res[i].name : ${res[i].name} | res[i].id : ${res[i].id}`
+          );
           if (res[i].name == answer.Department) {
             addDepartment_id = res[i].id;
-            console.log(`addDepartment_id created sucessfully : ${addDepartment_id}`)
+            console.log(
+              `addDepartment_id created sucessfully : ${addDepartment_id}`
+            );
           }
         }
-        console.log(`now we print the department_id again , ${addDepartment_id}`)
 
         // insert the new roles to table
-        db.query(
-          "INSERT INTO roles SET ?",
-          {
-            title: answer.newRole,
-            salary: answer.salary,
-            department_id: addDepartment_id,
-          })
+        db.query("INSERT INTO roles SET ?", {
+          title: answer.newRole,
+          salary: answer.salary,
+          department_id: addDepartment_id,
+        });
 
-          db.query("SELECT * FROM roles", function (err, res) {
-            if (err) throw err;
-            console.table("New roles is now added! All roles now:", res);
-             options();
-          });
-      })
+        db.query("SELECT * FROM roles", function (err, res) {
+          if (err) throw err;
+          viewRoles()
+        });
       });
-    }
+    });
+}
+
+
+// adding an employee to the database function
+function addEmployee() {
+  db.query('SELECT * FROM roles', function (err, res) {
+      if (err) throw err;
+      inquirer
+          .prompt([
+              {
+                  name: 'first_name',
+                  type: 'input',
+                  message: "Please enter the new employee's fist name? ",
+              },
+              {
+                  name: 'last_name',
+                  type: 'input',
+                  message: "Please enter the new employee's last name? "
+              },
+              {
+                  name: 'manager_id',
+                  type: 'input',
+                  message: "Please enter the new employee's manager's ID? "
+              },
+              {
+                  name: 'role',
+                  type: 'list',
+                  choices: function() {
+                  var currentRolesList = [];
+                  for (let i = 0; i < res.length; i++) {
+                    currentRolesList.push(res[i].title);
+                  }
+                  return currentRolesList;
+                  },
+                  message: "Please pick the employee's role from below? "
+              }
+              ]).then(function (answer) {
+                  let newRole_id;
+                  for (let i = 0; i < res.length; i++) {
+                      if (res[i].title == answer.role) {
+                        newRole_id = res[i].id;
+
+                      }
+                  }
+                  db.query(
+                  'INSERT INTO employee SET ?',
+                  {
+                      first_name: answer.first_name,
+                      last_name: answer.last_name,
+                      manager_id: answer.manager_id,
+                      role_id: newRole_id,
+                  })
+                  db.query("SELECT * FROM employee", function (err, res) {
+                    if (err) throw err;
+                    viewEmployees();
+                  });
+
+              })
+      })
+};
+
