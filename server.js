@@ -41,7 +41,6 @@ function options() {
         "Add a department",
         "Add a role",
         "Update employee role",
-        "Delete an employee",
         "EXIT",
       ],
     })
@@ -65,9 +64,12 @@ function options() {
         case "Add an employee":
           addEmployee();
           break;
-          case "EXIT":
-            db.end();
-            break;
+        case "Update employee role":
+          updateEmployeeRole();
+          break;
+        case "EXIT":
+          db.end();
+          break;
       }
     });
 }
@@ -175,7 +177,7 @@ function addRole() {
         name: "Department",
         type: "list",
         choices: getCurrentDepartmentsList(),
-        message: "please pick from below departments"
+        message: "please pick from below departments",
       },
     ])
     .then(function (answer) {
@@ -185,14 +187,8 @@ function addRole() {
         if (err) throw err;
         // set up the department id for the new role
         for (var i = 0; i < res.length; i++) {
-          console.log(
-            `res[i].name : ${res[i].name} | res[i].id : ${res[i].id}`
-          );
           if (res[i].name == answer.Department) {
             addDepartment_id = res[i].id;
-            console.log(
-              `addDepartment_id created sucessfully : ${addDepartment_id}`
-            );
           }
         }
 
@@ -205,68 +201,124 @@ function addRole() {
 
         db.query("SELECT * FROM roles", function (err, res) {
           if (err) throw err;
-          viewRoles()
+          viewRoles();
         });
       });
     });
 }
 
+function getCurrentRolesList() {
+  var currentRolesList = [];
+  db.query("SELECT * FROM roles", function (err, res) {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      currentRolesList.push(res[i].title);
+    }
+  });
+  return currentRolesList;
+}
 
 // adding an employee to the database function
 function addEmployee() {
-  db.query('SELECT * FROM roles', function (err, res) {
-      if (err) throw err;
-      inquirer
-          .prompt([
-              {
-                  name: 'first_name',
-                  type: 'input',
-                  message: "Please enter the new employee's fist name? ",
-              },
-              {
-                  name: 'last_name',
-                  type: 'input',
-                  message: "Please enter the new employee's last name? "
-              },
-              {
-                  name: 'manager_id',
-                  type: 'input',
-                  message: "Please enter the new employee's manager's ID? "
-              },
-              {
-                  name: 'role',
-                  type: 'list',
-                  choices: function() {
-                  var currentRolesList = [];
-                  for (let i = 0; i < res.length; i++) {
-                    currentRolesList.push(res[i].title);
-                  }
-                  return currentRolesList;
-                  },
-                  message: "Please pick the employee's role from below? "
-              }
-              ]).then(function (answer) {
-                  let newRole_id;
-                  for (let i = 0; i < res.length; i++) {
-                      if (res[i].title == answer.role) {
-                        newRole_id = res[i].id;
+  db.query("SELECT * FROM roles", function (err, res) {
+    if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: "first_name",
+          type: "input",
+          message: "Please enter the new employee's first name? ",
+        },
+        {
+          name: "last_name",
+          type: "input",
+          message: "Please enter the new employee's last name? ",
+        },
+        {
+          name: "manager_id",
+          type: "input",
+          message: "Please enter the new employee's manager's ID? ",
+        },
+        {
+          name: "role",
+          type: "list",
+          choices: getCurrentRolesList(),
+          message: "Please pick the employee's role from below? ",
+        },
+      ])
+      .then(function (answer) {
+        let newRole_id;
+        for (let i = 0; i < res.length; i++) {
+          if (res[i].title == answer.role) {
+            newRole_id = res[i].id;
+          }
+        }
+        db.query("INSERT INTO employee SET ?", {
+          first_name: answer.first_name,
+          last_name: answer.last_name,
+          manager_id: answer.manager_id,
+          role_id: newRole_id,
+        });
+        db.query("SELECT * FROM employee", function (err, res) {
+          if (err) throw err;
+          viewEmployees();
+        });
+      });
+  });
+}
 
-                      }
-                  }
-                  db.query(
-                  'INSERT INTO employee SET ?',
-                  {
-                      first_name: answer.first_name,
-                      last_name: answer.last_name,
-                      manager_id: answer.manager_id,
-                      role_id: newRole_id,
-                  })
-                  db.query("SELECT * FROM employee", function (err, res) {
-                    if (err) throw err;
-                    viewEmployees();
-                  });
+//////////////////////////////////////////
 
-              })
-      })
-};
+function getCurrentEmployeeList() {
+  var currentEmployeeList = [];
+  db.query("SELECT * FROM employee", function (err, res) {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      currentEmployeeList.push(res[i].first_name);
+    }
+  });
+  return currentEmployeeList;
+}
 
+// adding an employee to the database function
+function updateEmployeeRole() {
+  db.query("SELECT * FROM roles", function (err, res) {
+    if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: "confirm",
+          type: "list",
+          choices: ["yes", "no"],
+          message: "are you sure you want to update employee role?",
+        },
+        {
+          name: "firstName",
+          type: "list",
+          choices: getCurrentEmployeeList(),
+          message: "Please pick the employee's first name from below? ",
+        },
+        {
+          name: "role",
+          type: "list",
+          choices: getCurrentRolesList(),
+          message: "Please pick the employee's role from below? ",
+        },
+      ])
+      .then(function (answer) {
+        let updateRole_id;
+
+        for (let i = 0; i < res.length; i++) {
+          if (res[i].title == answer.role) {
+            updateRole_id = res[i].id;
+          }
+        }
+        const params = [updateRole_id, answer.firstName];
+        db.query(
+          "UPDATE employee SET role_id = ? WHERE first_name = ?",
+          params
+        );
+        viewEmployees();
+      });
+  });
+}
