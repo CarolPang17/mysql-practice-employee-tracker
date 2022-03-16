@@ -56,6 +56,9 @@ function options() {
         case "View all roles":
           viewRoles();
           break;
+        case "Add a department":
+          addDepartment();
+          break;
         case "Add an employee":
           addEmployee();
           break;
@@ -66,13 +69,12 @@ function options() {
 // print out the employee table funtion
 function viewEmployees() {
   // var query = "SELECT * FROM employee";
-  var query =
-    `SELECT e.id AS Employee_id, e.first_name, e.last_name, r.title, d.name AS department, r.salary , e.manager_id
+  var query = `SELECT e.id AS Employee_id, e.first_name, e.last_name, r.title, d.name AS department, r.salary , e.manager_id
   FROM employee e
   LEFT JOIN roles r
 	ON e.role_id = r.id
   LEFT JOIN department d
-  ON d.id = r.department_id`
+  ON d.id = r.department_id`;
 
   db.query(query, function (err, res) {
     if (err) throw err;
@@ -99,11 +101,10 @@ function viewDepartments() {
 
 // print out the roles table funtion
 function viewRoles() {
-  var query =
-  `SELECT r.id AS role_id, r.title, r.salary , d.name AS department
+  var query = `SELECT r.id AS role_id, r.title, r.salary , d.name AS department
 FROM roles r
 LEFT JOIN department d
-ON d.id = r.department_id`
+ON d.id = r.department_id`;
 
   db.query(query, function (err, res) {
     if (err) throw err;
@@ -115,3 +116,27 @@ ON d.id = r.department_id`
   });
 }
 
+// adding a new department to the database function
+function addDepartment() {
+  inquirer
+    .prompt([
+      {
+        name: "newDepartment",
+        type: "input",
+        message:
+          "please input the name of the department you want to create and add?",
+      },
+    ])
+    .then(function (answer) {
+      // insert the new department to table
+      db.query("INSERT INTO department SET ?", {
+        name: answer.newDepartment,
+      });
+      // console.log the table
+      db.query("SELECT * FROM department", function (err, res) {
+        if (err) throw err;
+        console.table("New department is now added! All Departments now:", res);
+        options();
+      });
+    });
+}
