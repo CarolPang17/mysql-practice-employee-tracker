@@ -20,7 +20,7 @@ VALUES
 ('import Staff', 70000, 4);
 
 --adding data to employee table
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
+INSERT INTO employee (first_name, last_name, role_id, manager)
 VALUES
 ('Anita', 'Hamilton', 1, 231),
 ('Rosalie', 'Tran', 2, 987),

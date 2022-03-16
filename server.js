@@ -67,7 +67,7 @@ function options() {
 function viewEmployees() {
   // var query = "SELECT * FROM employee";
   var query =
-    `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary , e.manager_id
+    `SELECT e.id AS Employee_id, e.first_name, e.last_name, r.title, d.name AS department, r.salary , e.manager_id
   FROM employee e
   LEFT JOIN roles r
 	ON e.role_id = r.id
@@ -99,7 +99,12 @@ function viewDepartments() {
 
 // print out the roles table funtion
 function viewRoles() {
-  var query = "SELECT * FROM roles";
+  var query =
+  `SELECT r.id AS role_id, r.title, r.salary , d.name AS department
+FROM roles r
+LEFT JOIN department d
+ON d.id = r.department_id`
+
   db.query(query, function (err, res) {
     if (err) throw err;
     console.table(
